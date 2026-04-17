@@ -113,42 +113,163 @@ input[type=number]{-moz-appearance:textfield;}
 .std-diff{font-size:11px;color:var(--muted2);}
 
 /* ── BRACKET ── */
-.bracket-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -16px;padding:0 16px 12px;scroll-snap-type:x proximity;}
-.bracket-cols{display:flex;gap:10px;min-width:540px;}
-.bcol{flex:1;min-width:160px;}
-.bcol-head{font-size:9px;letter-spacing:3px;text-transform:uppercase;text-align:center;padding:8px 4px;margin-bottom:10px;border-bottom:1px solid;}
-.bcol-head.wb{color:var(--wb);border-color:#59b9e022;}
-.bcol-head.lb{color:var(--lb);border-color:#e07a4022;}
-.bcol-head.gf{color:var(--gold);border-color:#e9b94c22;}
-.bm{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:8px;}
-.bm-lbl{padding:5px 10px;font-size:9px;letter-spacing:1px;text-align:center;border-bottom:1px solid var(--border);text-transform:uppercase;}
-.bm-lbl.wb{color:var(--wb);background:#59b9e008;}
-.bm-lbl.lb{color:var(--lb);background:#e07a4008;}
-.bm-lbl.gf{color:var(--gold);background:#e9b94c08;}
-.bt{
-  padding:11px 10px;font-size:12px;border-bottom:1px solid var(--border);
-  cursor:pointer;display:flex;align-items:center;gap:7px;
-  color:var(--text);user-select:none;min-height:var(--tap);transition:background .12s;
+#tab-bracket{padding:16px 0 0;}
+.bracket-panel-head{
+  font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;
+  color:var(--gold);margin-bottom:4px;padding:0 16px 10px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:baseline;gap:10px;
 }
-.bt:last-child{border-bottom:none;}
-.bt:active{background:#252525;}
-.bt.win{background:#3ecf7012;color:var(--win);}
-.bt.lose{opacity:.28;}
-.bt.tbd{color:var(--muted);font-style:italic;font-size:11px;cursor:default;pointer-events:none;}
-.bseed{
-  background:#1e1e1e;color:var(--muted);font-size:9px;
-  padding:3px 6px;border-radius:3px;min-width:24px;text-align:center;flex-shrink:0;
+.bracket-scroll-wrap{
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+  padding:16px 16px 8px;
 }
-.bt.win .bseed{background:#3ecf7020;color:var(--win);}
-.bgap{height:10px;}
-.gf-note{font-size:11px;color:var(--muted2);text-align:center;padding:6px 10px;line-height:1.5;}
+.bracket-canvas{
+  display:flex;flex-direction:column;gap:0;
+  min-width:700px;
+  position:relative;
+}
+/* Round column headers */
+.bracket-col-headers{
+  display:flex;margin-bottom:10px;
+}
+.bch{
+  font-size:9px;letter-spacing:2px;text-transform:uppercase;
+  text-align:center;color:var(--muted);padding:4px 0;
+  border-bottom:1px solid var(--border);
+}
+
+/* The actual bracket grid */
+.bracket-grid{
+  display:flex;
+  gap:0;
+  position:relative;
+}
+.bracket-col{
+  display:flex;
+  flex-direction:column;
+  justify-content:space-around;
+  flex:1;
+  padding:0 6px;
+  position:relative;
+}
+/* Match slot */
+.bslot{
+  display:flex;
+  flex-direction:column;
+  position:relative;
+  margin:4px 0;
+}
+.bslot-inner{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:8px;
+  overflow:hidden;
+}
+.bslot-inner.wb-slot{border-left:3px solid #59b9e055;}
+.bslot-inner.lb-slot{border-left:3px solid #e07a4055;}
+.bslot-inner.gf-slot{border-left:3px solid #e9b94c88;}
+
+/* Team row inside slot */
+.brow{
+  display:flex;align-items:center;gap:6px;
+  padding:9px 10px;font-size:12px;
+  border-bottom:1px solid var(--border);
+  cursor:pointer;user-select:none;
+  color:var(--text);transition:background .1s;
+  min-height:44px;
+}
+.brow:last-of-type{border-bottom:none;}
+.brow:active{background:#222;}
+.brow.win{background:#3ecf7012;color:var(--win);}
+.brow.lose{opacity:.28;}
+.brow.tbd{color:var(--muted);font-style:italic;font-size:11px;cursor:default;pointer-events:none;}
+.brow-seed{
+  background:#1e1e1e;color:var(--muted);font-size:8px;
+  padding:2px 5px;border-radius:3px;min-width:22px;text-align:center;flex-shrink:0;
+}
+.brow.win .brow-seed{background:#3ecf7020;color:var(--win);}
+.brow-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;}
+.brow-score{font-size:10px;color:var(--muted2);flex-shrink:0;letter-spacing:.5px;}
+.brow.win .brow-score{color:#3ecf7066;}
+/* Score under slot */
+.bslot-score{
+  font-size:10px;color:var(--muted);text-align:center;
+  padding:2px 0 0;letter-spacing:.5px;
+}
+
+/* Section divider */
+.bracket-section-div{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 0 10px;
+}
+.bsd-line{flex:1;height:1px;background:var(--border);}
+.bsd-lbl{
+  font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;
+  color:var(--lb);white-space:nowrap;
+}
+
+/* Grand Final */
+.gf-note-bar{
+  background:var(--card);border:1px solid #e9b94c33;
+  border-radius:8px;padding:10px 14px;
+  font-size:11px;color:var(--muted2);text-align:center;
+  margin-bottom:10px;line-height:1.5;
+}
 .champion{
-  text-align:center;margin:24px 0 0;padding:24px 16px;
+  text-align:center;margin:20px 16px 0;padding:26px 16px;
   background:var(--card);border:1px solid var(--gold);border-radius:var(--radius);
+  background-image:radial-gradient(ellipse at 50% 0%,#e9b94c0a 0%,transparent 70%);
 }
 .champ-lbl{font-size:10px;color:var(--muted);letter-spacing:4px;text-transform:uppercase;margin-bottom:8px;}
-.champ-name{font-family:'Bebas Neue',sans-serif;font-size:34px;color:var(--gold);letter-spacing:1px;line-height:1.1;}
+.champ-name{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--gold);letter-spacing:1px;line-height:1.1;}
 .champ-players{font-size:13px;color:var(--muted2);margin-top:6px;}
+
+/* Score modal */
+.score-modal-overlay{
+  position:fixed;inset:0;background:#000000cc;z-index:500;
+  display:flex;align-items:flex-end;justify-content:center;
+}
+.score-modal{
+  background:var(--card2);border:1px solid var(--border2);
+  border-radius:16px 16px 0 0;padding:20px 20px 32px;
+  width:100%;max-width:480px;
+  padding-bottom:calc(20px + env(safe-area-inset-bottom,0px));
+}
+.score-modal-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--gold);margin-bottom:2px;}
+.score-modal-sub{font-size:11px;color:var(--muted2);margin-bottom:18px;}
+.score-modal-row{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.score-modal-team{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.score-modal-nm{font-size:12px;color:var(--muted2);text-align:center;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.score-modal-input{
+  width:84px;height:68px;background:var(--bg);border:2px solid var(--border2);
+  color:var(--text);text-align:center;font-family:'Bebas Neue',sans-serif;
+  font-size:42px;border-radius:10px;display:block;transition:border-color .2s;
+}
+.score-modal-input:focus{outline:none;border-color:var(--gold);}
+.score-modal-vs{font-size:12px;color:var(--muted);flex-shrink:0;}
+.score-modal-win-row{display:flex;gap:8px;margin-bottom:8px;}
+.smbtn{
+  flex:1;border:none;padding:13px 8px;border-radius:10px;
+  font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;
+  cursor:pointer;min-height:var(--tap);line-height:1.2;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+}
+.smbtn:active{opacity:.85;}
+.smbtn-sub{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;opacity:.7;}
+.score-modal-btns{display:flex;gap:8px;}
+.score-modal-cancel{
+  flex:1;background:transparent;border:1px solid var(--border2);color:var(--muted2);
+  padding:12px;border-radius:10px;font-family:'DM Mono',monospace;
+  font-size:12px;cursor:pointer;min-height:var(--tap);
+}
+.score-modal-cancel:active{border-color:var(--loss);color:var(--loss);}
+.score-modal-save-only{
+  flex:1;background:var(--card);border:1px solid var(--border2);color:var(--muted2);
+  padding:12px;border-radius:10px;font-family:'DM Mono',monospace;
+  font-size:11px;cursor:pointer;min-height:var(--tap);
+}
+.score-modal-save-only:active{border-color:var(--gold);color:var(--gold);}
 
 /* ── ADMIN ── */
 .admin-phase{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:14px;}
@@ -304,18 +425,24 @@ input[type=number]{-moz-appearance:textfield;}
 </div>
 
 <div id="tab-groups" class="panel">
-  <div class="sec-head">Group Stage <span class="sec-sub">First to 9</span></div>
+  <div class="sec-head">Group Stage <span class="sec-sub">First to 9, win by 2</span></div>
   <div id="groupMatches"></div>
   <div class="sec-head" style="margin-top:8px;">Standings</div>
   <div id="groupStandings"></div>
 </div>
 
 <div id="tab-bracket" class="panel">
-  <div class="sec-head">Knockout <span class="sec-sub">First to 11</span></div>
-  <div class="info-box"><strong>Double Elimination.</strong> Tap a team name to record a win.<br>Grand Final: WB needs 1 win · LB needs 2.</div>
-  <div class="bracket-scroll"><div class="bracket-cols" id="bracketCols"></div></div>
+  <div class="bracket-panel-head">Knockout <span class="sec-sub">First to 11, win by 2</span></div>
+  <div class="bracket-scroll-wrap">
+    <div id="wbGrid"></div>
+    <div id="lbGrid"></div>
+    <div id="gfGrid"></div>
+  </div>
   <div id="championWrap"></div>
-  <button class="reset-btn" onclick="resetBracket()">↺ Reset Bracket</button>
+  <div style="padding:0 16px;">
+    <button class="reset-btn" onclick="resetBracket()">↺ Reset Bracket</button>
+  </div>
+  <div id="scoreModal"></div>
 </div>
 
 <div id="tab-admin" class="panel">
@@ -555,19 +682,23 @@ const DEPS={
   L1:['L3'],L2:['L4'],L3:['L5'],L4:['L5'],
   L5:['L6'],L6:['GF1'],GF1:['GF2'],GF2:[],
 };
-function cascReset(id){delete BRES[id];(DEPS[id]||[]).forEach(cascReset);}
-function clickB(id,tIdx){
-  if(tIdx===null||tIdx===undefined) return;
-  if(BRES[id]===tIdx) cascReset(id); else BRES[id]=tIdx;
-  save(); renderBracket();
-  if(document.getElementById('tab-admin').classList.contains('active')) renderAdminBracketScores();
+
+// Bracket scores: BSCORES[id] = {a: scoreA, b: scoreB}
+let BSCORES = JSON.parse(localStorage.getItem('cd26_bs')||'null') || {};
+
+function cascReset(id){
+  delete BRES[id]; delete BSCORES[id];
+  (DEPS[id]||[]).forEach(cascReset);
 }
+
 function resM(id,tA,tB){
   const r=BRES[id]!==undefined?BRES[id]:null;
   let w=null,l=null;
   if(r!==null&&tA!==null&&tB!==null){if(r===tA){w=tA;l=tB;}else if(r===tB){w=tB;l=tA;}}
-  return{id,tA,tB,w,l};
+  const sc=BSCORES[id]||null;
+  return{id,tA,tB,w,l,sc};
 }
+
 function buildBracket(){
   const s=getSeeds();
   const W1=resM('W1',s.A1,s.B4),W2=resM('W2',s.A2,s.B3),W3=resM('W3',s.A3,s.B2),W4=resM('W4',s.A4,s.B1);
@@ -578,74 +709,263 @@ function buildBracket(){
   const wbC=W7.w,lbC=L6.w;
   const GF1=resM('GF1',wbC,lbC);
   const gf2=GF1.w===lbC&&lbC!==null;
-  const GF2=gf2?resM('GF2',wbC,lbC):{id:'GF2',tA:null,tB:null,w:null,l:null};
+  const GF2=gf2?resM('GF2',wbC,lbC):{id:'GF2',tA:null,tB:null,w:null,l:null,sc:null};
   const champ=GF1.w===wbC&&wbC!==null?wbC:(GF2.w===lbC&&lbC!==null?lbC:null);
   return{W1,W2,W3,W4,W5,W6,W7,L1,L2,L3,L4,L5,L6,GF1,GF2,wbC,lbC,gf2,champ};
 }
-function makeBM(m,cls,label){
-  const el=document.createElement('div'); el.className='bm';
-  el.innerHTML=`<div class="bm-lbl ${cls}">${label}</div>`;
+
+// Lookup what score a team had in a previous match
+function prevScore(m, tIdx){
+  if(!m||!m.sc||tIdx===null||tIdx===undefined) return '';
+  const isA = m.tA===tIdx;
+  const sa=parseInt(m.sc.a), sb=parseInt(m.sc.b);
+  if(isNaN(sa)||isNaN(sb)) return '';
+  return isA ? `${sa}-${sb}` : `${sb}-${sa}`;
+}
+
+// Lookup score from team's perspective in a previous match
+function prevScore(m, tIdx){
+  if(!m||!m.sc||tIdx===null||tIdx===undefined) return '';
+  const sa=parseInt(m.sc.a),sb=parseInt(m.sc.b);
+  if(isNaN(sa)||isNaN(sb)) return '';
+  return m.tA===tIdx ? `${sa}-${sb}` : `${sb}-${sa}`;
+}
+
+// Make a single match slot element
+function makeSlot(m, cls){
+  const wrap=document.createElement('div');
+  wrap.className='bslot';
+  const inner=document.createElement('div');
+  inner.className=`bslot-inner ${cls}-slot`;
   [m.tA,m.tB].forEach(tIdx=>{
     const row=document.createElement('div');
-    if(tIdx===null||tIdx===undefined){row.className='bt tbd';row.textContent='TBD';}
-    else{
-      row.className=`bt${m.w===tIdx?' win':''}${m.l===tIdx?' lose':''}`;
-      row.innerHTML=`<span class="bseed">${seedLbl(tIdx)}</span>${tshort(tIdx)}`;
-      row.onclick=()=>clickB(m.id,tIdx);
+    if(tIdx===null||tIdx===undefined){
+      row.className='brow tbd'; row.textContent='TBD';
+    } else {
+      const isW=m.w===tIdx, isL=m.l===tIdx;
+      row.className=`brow${isW?' win':''}${isL?' lose':''}`;
+      const sc=prevScore(m,tIdx);
+      row.innerHTML=`<span class="brow-seed">${seedLbl(tIdx)}</span><span class="brow-name">${tshort(tIdx)}</span>${sc?`<span class="brow-score">${sc}</span>`:''}`;
+      row.onclick=()=>openScoreModal(m.id,m.tA,m.tB);
     }
-    el.appendChild(row);
+    inner.appendChild(row);
   });
-  return el;
+  wrap.appendChild(inner);
+  return wrap;
 }
-function bgap(){const d=document.createElement('div');d.className='bgap';return d;}
+
+// Make a column of match slots
+function makeCol(matches, cls){
+  const col=document.createElement('div');
+  col.className='bracket-col';
+  matches.forEach(m=>col.appendChild(makeSlot(m,cls)));
+  return col;
+}
+
+// Column header
+function colHead(label, color){
+  const d=document.createElement('div');
+  d.className='bch'; d.style.flex='1'; d.style.color=color; d.textContent=label;
+  return d;
+}
+
+// Section divider
+function sectionDiv(label, color){
+  const d=document.createElement('div');
+  d.className='bracket-section-div';
+  d.innerHTML=`<div class="bsd-line"></div><div class="bsd-lbl" style="color:${color}">${label}</div><div class="bsd-line"></div>`;
+  return d;
+}
+
+// SVG line drawing helpers
+function elMidY(el, ref){ const er=el.getBoundingClientRect(),cr=ref.getBoundingClientRect(); return er.top-cr.top+er.height/2; }
+function elRight(el, ref){ const er=el.getBoundingClientRect(),cr=ref.getBoundingClientRect(); return er.right-cr.left; }
+function elLeft(el, ref){ const er=el.getBoundingClientRect(),cr=ref.getBoundingClientRect(); return er.left-cr.left; }
+
+function drawConnector(svg, ref, fromEl, toEl, color){
+  const x1=elRight(fromEl,ref), y1=elMidY(fromEl,ref);
+  const x2=elLeft(toEl,ref),   y2=elMidY(toEl,ref);
+  const mx=(x1+x2)/2;
+  const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+  path.setAttribute('d',`M${x1},${y1} H${mx} V${y2} H${x2}`);
+  path.setAttribute('fill','none');
+  path.setAttribute('stroke',color);
+  path.setAttribute('stroke-width','1.5');
+  svg.appendChild(path);
+}
+
+function makeSvg(grid){
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.style.cssText='position:absolute;inset:0;pointer-events:none;overflow:visible;width:100%;height:100%;';
+  grid.style.position='relative';
+  grid.appendChild(svg);
+  return svg;
+}
 
 function renderBracket(){
   const de=buildBracket();
-  const cols=document.getElementById('bracketCols'); cols.innerHTML='';
 
-  const wb=document.createElement('div'); wb.className='bcol';
-  wb.innerHTML=`<div class="bcol-head wb">Winners Bracket</div>`;
-  [{id:'W1',lbl:'1A vs 4B'},{id:'W2',lbl:'2A vs 3B'},{id:'W3',lbl:'3A vs 2B'},{id:'W4',lbl:'4A vs 1B'}].forEach(({id,lbl})=>wb.appendChild(makeBM(de[id],'wb',lbl)));
-  wb.appendChild(bgap());
-  wb.appendChild(makeBM(de.W5,'wb','WB Semi 1'));
-  wb.appendChild(makeBM(de.W6,'wb','WB Semi 2'));
-  wb.appendChild(bgap());
-  wb.appendChild(makeBM(de.W7,'wb','WB Final'));
-  cols.appendChild(wb);
+  // ── WINNERS BRACKET ──
+  const wbWrap=document.getElementById('wbGrid'); wbWrap.innerHTML='';
+  const wbHdr=document.createElement('div'); wbHdr.className='bracket-col-headers';
+  [['Round 1','var(--wb)'],['Semifinals','var(--wb)'],['WB Final','var(--wb)']].forEach(([l,c])=>wbHdr.appendChild(colHead(l,c)));
+  wbWrap.appendChild(wbHdr);
+  const wbGrid=document.createElement('div'); wbGrid.className='bracket-grid'; wbGrid.style.minWidth='560px';
+  const wc1=makeCol([de.W1,de.W2,de.W3,de.W4],'wb');
+  const wc2=makeCol([de.W5,de.W6],'wb');
+  const wc3=makeCol([de.W7],'wb');
+  wc3.style.justifyContent='center';
+  wbGrid.appendChild(wc1); wbGrid.appendChild(wc2); wbGrid.appendChild(wc3);
+  wbWrap.appendChild(wbGrid);
+  const wbSvg=makeSvg(wbGrid);
+  requestAnimationFrame(()=>{
+    const ref=wbGrid;
+    const s1=wc1.querySelectorAll('.bslot'), s2=wc2.querySelectorAll('.bslot'), s3=wc3.querySelectorAll('.bslot');
+    const c='#59b9e040';
+    if(s1[0]&&s1[1]&&s2[0]){drawConnector(wbSvg,ref,s1[0],s2[0],c);drawConnector(wbSvg,ref,s1[1],s2[0],c);}
+    if(s1[2]&&s1[3]&&s2[1]){drawConnector(wbSvg,ref,s1[2],s2[1],c);drawConnector(wbSvg,ref,s1[3],s2[1],c);}
+    if(s2[0]&&s2[1]&&s3[0]){drawConnector(wbSvg,ref,s2[0],s3[0],c);drawConnector(wbSvg,ref,s2[1],s3[0],c);}
+  });
 
-  const lb=document.createElement('div'); lb.className='bcol';
-  lb.innerHTML=`<div class="bcol-head lb">Losers Bracket</div>`;
-  lb.appendChild(makeBM(de.L1,'lb','LB R1'));
-  lb.appendChild(makeBM(de.L2,'lb','LB R1'));
-  lb.appendChild(bgap());
-  lb.appendChild(makeBM(de.L3,'lb','LB R2'));
-  lb.appendChild(makeBM(de.L4,'lb','LB R2'));
-  lb.appendChild(bgap());
-  lb.appendChild(makeBM(de.L5,'lb','LB Semi'));
-  lb.appendChild(bgap());
-  lb.appendChild(makeBM(de.L6,'lb','LB Final'));
-  cols.appendChild(lb);
+  // ── LOSERS BRACKET ──
+  const lbWrap=document.getElementById('lbGrid'); lbWrap.innerHTML='';
+  lbWrap.appendChild(sectionDiv('Losers Bracket','var(--lb)'));
+  const lbHdr=document.createElement('div'); lbHdr.className='bracket-col-headers';
+  [['LB Round 1','var(--lb)'],['LB Round 2','var(--lb)'],['LB Semi','var(--lb)'],['LB Final','var(--lb)']].forEach(([l,c])=>lbHdr.appendChild(colHead(l,c)));
+  lbWrap.appendChild(lbHdr);
+  const lbGrid=document.createElement('div'); lbGrid.className='bracket-grid'; lbGrid.style.minWidth='560px';
+  const lc1=makeCol([de.L1,de.L2],'lb');
+  const lc2=makeCol([de.L3,de.L4],'lb');
+  const lc3=makeCol([de.L5],'lb'); lc3.style.justifyContent='center';
+  const lc4=makeCol([de.L6],'lb'); lc4.style.justifyContent='center';
+  lbGrid.appendChild(lc1); lbGrid.appendChild(lc2); lbGrid.appendChild(lc3); lbGrid.appendChild(lc4);
+  lbWrap.appendChild(lbGrid);
+  const lbSvg=makeSvg(lbGrid);
+  requestAnimationFrame(()=>{
+    const ref=lbGrid;
+    const s1=lc1.querySelectorAll('.bslot'), s2=lc2.querySelectorAll('.bslot');
+    const s3=lc3.querySelectorAll('.bslot'), s4=lc4.querySelectorAll('.bslot');
+    const c='#e07a4040';
+    if(s1[0]&&s2[0]) drawConnector(lbSvg,ref,s1[0],s2[0],c);
+    if(s1[1]&&s2[1]) drawConnector(lbSvg,ref,s1[1],s2[1],c);
+    if(s2[0]&&s3[0]) drawConnector(lbSvg,ref,s2[0],s3[0],c);
+    if(s2[1]&&s3[0]) drawConnector(lbSvg,ref,s2[1],s3[0],c);
+    if(s3[0]&&s4[0]) drawConnector(lbSvg,ref,s3[0],s4[0],c);
+  });
 
-  const gfc=document.createElement('div'); gfc.className='bcol';
-  gfc.innerHTML=`<div class="bcol-head gf">Grand Final</div>`;
-  gfc.appendChild(makeBM(de.GF1,'gf','Game 1'));
-  const note=document.createElement('div'); note.className='gf-note';
-  note.textContent=de.GF1.w===null?'WB needs 1 · LB needs 2':de.GF1.w===de.wbC?'✓ WB wins!':'LB wins G1 → Game 2';
-  gfc.appendChild(note);
-  if(de.gf2){gfc.appendChild(bgap());gfc.appendChild(makeBM(de.GF2,'gf','Game 2'));}
-  cols.appendChild(gfc);
-
-  const cw=document.getElementById('championWrap'); cw.innerHTML='';
+  // ── GRAND FINAL ──
+  const gfWrap=document.getElementById('gfGrid'); gfWrap.innerHTML='';
+  gfWrap.appendChild(sectionDiv('Grand Final','var(--gold)'));
+  const gfNote=document.createElement('div'); gfNote.className='gf-note-bar';
+  gfNote.textContent='WB champion needs 1 win · LB champion needs 2 wins';
+  gfWrap.appendChild(gfNote);
+  const gfHdr=document.createElement('div'); gfHdr.className='bracket-col-headers';
+  gfHdr.appendChild(colHead('Game 1','var(--gold)'));
+  if(de.gf2) gfHdr.appendChild(colHead('Game 2','var(--gold)'));
+  gfHdr.appendChild(colHead('Champion','var(--gold)'));
+  gfWrap.appendChild(gfHdr);
+  const gfGrid=document.createElement('div'); gfGrid.className='bracket-grid'; gfGrid.style.minWidth='280px';
+  const gc1=makeCol([de.GF1],'gf'); gc1.style.justifyContent='center';
+  gfGrid.appendChild(gc1);
+  if(de.gf2){ const gc2=makeCol([de.GF2],'gf'); gc2.style.justifyContent='center'; gfGrid.appendChild(gc2); }
+  // Champion box
+  const champCol=document.createElement('div'); champCol.className='bracket-col'; champCol.style.justifyContent='center';
   if(de.champ!==null){
     const t=TEAMS[de.champ];
-    cw.innerHTML=`<div class="champion">
-      <div class="champ-lbl">🏆 Champions 🏆</div>
-      <div class="champ-name">${(t?.p1||'').split(' ')[0]} &amp; ${(t?.p2||'').split(' ')[0]}</div>
-      <div class="champ-players">${t?.p1||''} · ${t?.p2||''}</div>
+    champCol.innerHTML=`<div style="background:var(--card);border:2px solid var(--gold);border-radius:10px;padding:14px 10px;text-align:center;margin:4px 6px;">
+      <div style="font-size:9px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;">🏆 Champions</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);line-height:1.1;">${(t?.p1||'').split(' ')[0]} &amp; ${(t?.p2||'').split(' ')[0]}</div>
+      <div style="font-size:10px;color:var(--muted2);margin-top:5px;">${t?.p1||''} · ${t?.p2||''}</div>
+    </div>`;
+  } else {
+    champCol.innerHTML=`<div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 10px;text-align:center;margin:4px 6px;">
+      <div style="font-size:9px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;">🏆 Champion</div>
+      <div style="font-size:11px;color:var(--muted);font-style:italic;">TBD</div>
     </div>`;
   }
+  gfGrid.appendChild(champCol);
+  gfWrap.appendChild(gfGrid);
+  document.getElementById('championWrap').innerHTML='';
 }
-function resetBracket(){if(!confirm('Reset bracket?'))return;BRES={};save();renderBracket();}
+
+function resetBracket(){
+  if(!confirm('Reset bracket?')) return;
+  BRES={}; BSCORES={};
+  localStorage.setItem('cd26_bs',JSON.stringify(BSCORES));
+  save(); renderBracket();
+}
+
+// ── SCORE MODAL ──
+let _modalId=null, _modalTA=null, _modalTB=null;
+
+function openScoreModal(id, tA, tB){
+  if(tA===null||tB===null||tA===undefined||tB===undefined) return;
+  _modalId=id; _modalTA=tA; _modalTB=tB;
+  const sc=BSCORES[id]||{a:'',b:''};
+  const el=document.getElementById('scoreModal');
+  el.innerHTML=`<div class="score-modal-overlay" onclick="closeModal(event)">
+    <div class="score-modal">
+      <div class="score-modal-title">Enter Score</div>
+      <div class="score-modal-sub">First to 11, win by 2 · then tap the winner</div>
+      <div class="score-modal-row">
+        <div class="score-modal-team">
+          <div class="score-modal-nm">${tshort(tA)}</div>
+          <input class="score-modal-input" id="ms_a" type="number" inputmode="numeric" min="0" max="99" value="${sc.a}" placeholder="0">
+        </div>
+        <span class="score-modal-vs">VS</span>
+        <div class="score-modal-team">
+          <div class="score-modal-nm">${tshort(tB)}</div>
+          <input class="score-modal-input" id="ms_b" type="number" inputmode="numeric" min="0" max="99" value="${sc.b}" placeholder="0">
+        </div>
+      </div>
+      <div class="score-modal-win-row">
+        <button class="smbtn" style="background:var(--wb);color:#0a0a0a;" onclick="saveAndPick(${tA})">
+          ${tshort(tA)}<span class="smbtn-sub">Wins</span>
+        </button>
+        <button class="smbtn" style="background:var(--lb);color:#0a0a0a;" onclick="saveAndPick(${tB})">
+          ${tshort(tB)}<span class="smbtn-sub">Wins</span>
+        </button>
+      </div>
+      <div class="score-modal-btns">
+        <button class="score-modal-save-only" onclick="saveScoreOnly()">Save Score Only</button>
+        <button class="score-modal-cancel" onclick="closeModalEl()">Cancel</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function closeModal(e){
+  if(e.target.classList.contains('score-modal-overlay')) closeModalEl();
+}
+function closeModalEl(){
+  document.getElementById('scoreModal').innerHTML='';
+  _modalId=null;
+}
+
+function saveScoreOnly(){
+  if(!_modalId) return;
+  const a=document.getElementById('ms_a').value;
+  const b=document.getElementById('ms_b').value;
+  BSCORES[_modalId]={a,b};
+  localStorage.setItem('cd26_bs',JSON.stringify(BSCORES));
+  closeModalEl();
+  renderBracket();
+  if(document.getElementById('tab-admin').classList.contains('active')) renderAdminBracketScores();
+}
+
+function saveAndPick(winner){
+  if(!_modalId) return;
+  const a=document.getElementById('ms_a').value;
+  const b=document.getElementById('ms_b').value;
+  BSCORES[_modalId]={a,b};
+  localStorage.setItem('cd26_bs',JSON.stringify(BSCORES));
+  if(BRES[_modalId]===winner) cascReset(_modalId);
+  else BRES[_modalId]=winner;
+  save();
+  closeModalEl();
+  renderBracket();
+  if(document.getElementById('tab-admin').classList.contains('active')) renderAdminBracketScores();
+}
 
 // ══ ADMIN ════════════════════════════════════════════════
 function togglePhase(n){
@@ -843,10 +1163,10 @@ function renderAdminBracketScores(){
       <div class="bscore-btns">
         <button class="bscore-btn${m.w===m.tA?' picked':m.w!==null?' lost':''}"
           ${unavail||m.tA===null?'disabled':''}
-          onclick="clickB('${m.id}',${m.tA})">${nmA}</button>
+          onclick="openScoreModal('${m.id}',${m.tA},${m.tB})">${nmA}</button>
         <button class="bscore-btn${m.w===m.tB?' picked':m.w!==null?' lost':''}"
           ${unavail||m.tB===null?'disabled':''}
-          onclick="clickB('${m.id}',${m.tB})">${nmB}</button>
+          onclick="openScoreModal('${m.id}',${m.tA},${m.tB})">${nmB}</button>
       </div>`;
     el.appendChild(card);
   });
