@@ -527,8 +527,22 @@ input[type=number]{-moz-appearance:textfield;}
 <script>
 // ══ STATE ═══════════════════════════════════════════════
 const K={t:'cd26_t',g:'cd26_g',s:'cd26_s',b:'cd26_b'};
-let TEAMS = JSON.parse(localStorage.getItem(K.t)||'null') || Array.from({length:8},()=>({p1:'',p2:''}));
-let GROUPS = JSON.parse(localStorage.getItem(K.g)||'null') || [[0,1,2,3],[4,5,6,7]];
+
+// Hardcoded defaults — Group A: indices 0-3, Group B: indices 4-7
+const DEFAULT_TEAMS = [
+  {p1:'Josh Clein',    p2:'Alec Torgan'},    // 0 - Group A
+  {p1:'Alex McIntosh', p2:'Drew Heavilon'},   // 1 - Group A
+  {p1:'Benj Stern',    p2:'Jack Quigley'},    // 2 - Group A
+  {p1:'Beryl Grant',   p2:'Alex Huber'},      // 3 - Group A
+  {p1:'David Gordon',  p2:'Robert Justus'},   // 4 - Group B
+  {p1:'Ben Ekdahl',    p2:'Jared Cohen'},     // 5 - Group B
+  {p1:'Grant Parker',  p2:'Jacob Boughter'},  // 6 - Group B
+  {p1:'Jim Buccholz',  p2:'Mark Blessing'},   // 7 - Group B
+];
+const DEFAULT_GROUPS = [[0,1,2,3],[4,5,6,7]];
+
+let TEAMS  = JSON.parse(localStorage.getItem(K.t)||'null') || DEFAULT_TEAMS;
+let GROUPS = JSON.parse(localStorage.getItem(K.g)||'null') || DEFAULT_GROUPS;
 let SCORES = JSON.parse(localStorage.getItem(K.s)||'null') || {gA:Array(6).fill(null).map(()=>({a:'',b:''})),gB:Array(6).fill(null).map(()=>({a:'',b:''}))};
 let BRES = JSON.parse(localStorage.getItem(K.b)||'null') || {};
 const RR=[[0,1],[0,2],[0,3],[1,2],[1,3],[2,3]];
@@ -646,16 +660,34 @@ function renderTeams(){
 // B3=Ben&Jared vs Jim&Mark(RR[1,3]), B4=David&Robert vs Jim&Mark(RR[0,3]),
 // B5=Ben&Jared vs Grant&Jacob(RR[1,2]), B6=Grant&Jacob vs Jim&Mark(RR[2,3])
 
+// RR = [[0,1],[0,2],[0,3],[1,2],[1,3],[2,3]]
+// Group A teams: 0=Josh&Alec, 1=Alex&Drew, 2=Benj&Jack, 3=Beryl&Alex
+// Group B teams: 0=David&Robert, 1=Ben&Jared, 2=Grant&Jacob, 3=Jim&Mark
+//
+// Schedule matchups:
+// A1: Josh(0) vs Alex(1)     → RR idx 0 = [0,1] ✓
+// A2: Alex(1) vs Benj(2)     → RR idx 3 = [1,2] ✓
+// A3: Josh(0) vs Beryl(3)    → RR idx 2 = [0,3] ✓
+// A4: Benj(2) vs Beryl(3)    → RR idx 5 = [2,3] ✓
+// A5: Josh(0) vs Benj(2)     → RR idx 1 = [0,2] ✓
+// A6: Alex(1) vs Beryl(3)    → RR idx 4 = [1,3] ✓
+// B1: David(0) vs Ben(1)     → RR idx 0 = [0,1] ✓
+// B2: David(0) vs Grant(2)   → RR idx 1 = [0,2] ✓
+// B3: Ben(1) vs Jim(3)       → RR idx 4 = [1,3] ✓
+// B4: David(0) vs Jim(3)     → RR idx 2 = [0,3] ✓
+// B5: Ben(1) vs Grant(2)     → RR idx 3 = [1,2] ✓
+// B6: Grant(2) vs Jim(3)     → RR idx 5 = [2,3] ✓
+
 const SCHEDULE = [
   {time:'11:30', game:'A1', g:0, rrIdx:0},
   {time:'11:45', game:'B1', g:1, rrIdx:0},
   {time:'12:00', game:'A2', g:0, rrIdx:3},
   {time:'12:15', game:'B2', g:1, rrIdx:1},
-  {time:'12:30', game:'A3', g:0, rrIdx:1},
+  {time:'12:30', game:'A3', g:0, rrIdx:2},
   {time:'12:45', game:'B3', g:1, rrIdx:4},
   {time:'1:00',  game:'A4', g:0, rrIdx:5},
   {time:'1:15',  game:'B4', g:1, rrIdx:2},
-  {time:'1:30',  game:'A5', g:0, rrIdx:2},
+  {time:'1:30',  game:'A5', g:0, rrIdx:1},
   {time:'1:45',  game:'B5', g:1, rrIdx:3},
   {time:'2:00',  game:'A6', g:0, rrIdx:4},
   {time:'2:15',  game:'B6', g:1, rrIdx:5},
