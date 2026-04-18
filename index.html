@@ -433,6 +433,17 @@ input[type=number]{-moz-appearance:textfield;}
 
 <div id="tab-bracket" class="panel">
   <div class="bracket-panel-head">Knockout <span class="sec-sub">First to 9, win by 2</span></div>
+  <!-- Bracket mode toggle -->
+  <div style="padding:0 16px 14px;display:flex;gap:8px;">
+    <button id="btnDE" onclick="setBracketMode('de')"
+      style="flex:1;padding:11px 8px;border-radius:8px;border:2px solid var(--wb);background:#59b9e015;color:var(--wb);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;cursor:pointer;min-height:44px;">
+      Double Elim
+    </button>
+    <button id="btnSE" onclick="setBracketMode('se')"
+      style="flex:1;padding:11px 8px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--muted2);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;cursor:pointer;min-height:44px;">
+      Single Elim ⚡
+    </button>
+  </div>
   <div class="bracket-scroll-wrap">
     <div id="wbGrid"></div>
     <div id="lbGrid"></div>
@@ -704,7 +715,203 @@ function renderGroups(){
   });
 }
 
-// ══ BRACKET ═════════════════════════════════════════════
+// ══ BRACKET MODE ════════════════════════════════════════
+let BRACKET_MODE = localStorage.getItem('cd26_bmode') || 'de'; // 'de' or 'se'
+
+function _updateBracketToggle(){
+  const de=document.getElementById('btnDE');
+  const se=document.getElementById('btnSE');
+  if(!de||!se) return;
+  if(BRACKET_MODE==='de'){
+    de.style.cssText='flex:1;padding:11px 8px;border-radius:8px;border:2px solid var(--wb);background:#59b9e015;color:var(--wb);font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:1px;cursor:pointer;min-height:44px;';
+    se.style.cssText='flex:1;padding:11px 8px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--muted2);font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:1px;cursor:pointer;min-height:44px;';
+  } else {
+    se.style.cssText='flex:1;padding:11px 8px;border-radius:8px;border:2px solid var(--gold);background:#e9b94c15;color:var(--gold);font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:1px;cursor:pointer;min-height:44px;';
+    de.style.cssText='flex:1;padding:11px 8px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--muted2);font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:1px;cursor:pointer;min-height:44px;';
+  }
+}
+
+function setBracketMode(mode){
+  BRACKET_MODE = mode;
+  localStorage.setItem('cd26_bmode', mode);
+  renderBracket();
+}
+
+// ── SINGLE ELIM STATE ──
+// SE results: SR[id] = winning team index
+let SRES = JSON.parse(localStorage.getItem('cd26_se')||'null') || {};
+let SSCORES = JSON.parse(localStorage.getItem('cd26_ssc')||'null') || {};
+
+function seCascReset(id){
+  delete SRES[id]; delete SSCORES[id];
+  const deps={Q1:['S1'],Q2:['S1'],Q3:['S2'],Q4:['S2'],S1:['F'],S2:['F'],F:[]};
+  (deps[id]||[]).forEach(seCascReset);
+}
+function seResM(id,tA,tB){
+  const r=SRES[id]!==undefined?SRES[id]:null;
+  let w=null,l=null;
+  if(r!==null&&tA!==null&&tB!==null){if(r===tA){w=tA;l=tB;}else if(r===tB){w=tB;l=tA;}}
+  const sc=SSCORES[id]||null;
+  return{id,tA,tB,w,l,sc};
+}
+function buildSE(){
+  const s=getSeeds();
+  const Q1=seResM('Q1',s.A1,s.B4);
+  const Q2=seResM('Q2',s.A2,s.B3);
+  const Q3=seResM('Q3',s.A3,s.B2);
+  const Q4=seResM('Q4',s.A4,s.B1);
+  const S1=seResM('S1',Q1.w,Q2.w);  // 1-seed side: winner of A1/B4 vs winner of A2/B3
+  const S2=seResM('S2',Q3.w,Q4.w);  // 2-seed side
+  const F=seResM('F',S1.w,S2.w);
+  return{Q1,Q2,Q3,Q4,S1,S2,F};
+}
+
+function openSEModal(id,tA,tB){
+  if(tA===null||tB===null||tA===undefined||tB===undefined) return;
+  _modalId='SE:'+id; _modalTA=tA; _modalTB=tB;
+  const sc=SSCORES[id]||{a:'',b:''};
+  const el=document.getElementById('scoreModal');
+  el.innerHTML=`<div class="score-modal-overlay" onclick="closeModal(event)">
+    <div class="score-modal">
+      <div class="score-modal-title">Enter Score</div>
+      <div class="score-modal-sub">First to 11, win by 2 · then tap the winner</div>
+      <div class="score-modal-row">
+        <div class="score-modal-team">
+          <div class="score-modal-nm">${tshort(tA)}</div>
+          <input class="score-modal-input" id="ms_a" type="number" inputmode="numeric" min="0" max="99" value="${sc.a}" placeholder="0">
+        </div>
+        <span class="score-modal-vs">VS</span>
+        <div class="score-modal-team">
+          <div class="score-modal-nm">${tshort(tB)}</div>
+          <input class="score-modal-input" id="ms_b" type="number" inputmode="numeric" min="0" max="99" value="${sc.b}" placeholder="0">
+        </div>
+      </div>
+      <div class="score-modal-win-row">
+        <button class="smbtn" style="background:var(--wb);color:#0a0a0a;" onclick="seSaveAndPick('${id}',${tA})">${tshort(tA)}<span class="smbtn-sub">Wins</span></button>
+        <button class="smbtn" style="background:var(--lb);color:#0a0a0a;" onclick="seSaveAndPick('${id}',${tB})">${tshort(tB)}<span class="smbtn-sub">Wins</span></button>
+      </div>
+      <div class="score-modal-btns">
+        <button class="score-modal-save-only" onclick="seSaveOnly('${id}')">Save Score Only</button>
+        <button class="score-modal-cancel" onclick="closeModalEl()">Cancel</button>
+      </div>
+    </div>
+  </div>`;
+}
+function seSaveOnly(id){
+  const a=document.getElementById('ms_a')?.value||'';
+  const b=document.getElementById('ms_b')?.value||'';
+  SSCORES[id]={a,b};
+  localStorage.setItem('cd26_ssc',JSON.stringify(SSCORES));
+  closeModalEl(); renderBracket();
+}
+function seSaveAndPick(id,winner){
+  const a=document.getElementById('ms_a')?.value||'';
+  const b=document.getElementById('ms_b')?.value||'';
+  SSCORES[id]={a,b};
+  if(SRES[id]===winner) seCascReset(id); else SRES[id]=winner;
+  localStorage.setItem('cd26_se',JSON.stringify(SRES));
+  localStorage.setItem('cd26_ssc',JSON.stringify(SSCORES));
+  closeModalEl(); renderBracket();
+}
+
+function renderSE(){
+  const se=buildSE();
+  document.getElementById('lbGrid').innerHTML='';
+  document.getElementById('gfGrid').innerHTML='';
+
+  const wrap=document.getElementById('wbGrid'); wrap.innerHTML='';
+
+  // Info bar
+  const info=document.createElement('div');
+  info.className='gf-note-bar';
+  info.style.marginBottom='14px';
+  info.innerHTML='⚡ <strong style="color:var(--gold)">Single Elimination</strong> — backup format · First to 11, win by 2 · 1-seeds cannot meet until the Final';
+  wrap.appendChild(info);
+
+  // Headers
+  const hdr=document.createElement('div'); hdr.className='bracket-col-headers';
+  [['Quarterfinals','var(--gold)'],['Semifinals','var(--gold)'],['Final','var(--gold)'],['Champion','var(--gold)']].forEach(([l,c])=>hdr.appendChild(colHead(l,c)));
+  wrap.appendChild(hdr);
+
+  // Grid
+  const grid=document.createElement('div'); grid.className='bracket-grid'; grid.style.minWidth='560px'; grid.style.position='relative';
+
+  // QF col
+  const qfc=document.createElement('div'); qfc.className='bracket-col';
+  [se.Q1,se.Q2,se.Q3,se.Q4].forEach(m=>{
+    const slot=makeSlot(m,'gf','First to 11, win by 2');
+    // Override onclick to use SE modal
+    slot.querySelectorAll('.brow:not(.tbd)').forEach(r=>{
+      r.onclick=()=>openSEModal(m.id,m.tA,m.tB);
+    });
+    qfc.appendChild(slot);
+  });
+  grid.appendChild(qfc);
+
+  // SF col
+  const sfc=document.createElement('div'); sfc.className='bracket-col';
+  [se.S1,se.S2].forEach(m=>{
+    const slot=makeSlot(m,'gf','First to 11, win by 2');
+    slot.querySelectorAll('.brow:not(.tbd)').forEach(r=>{
+      r.onclick=()=>openSEModal(m.id,m.tA,m.tB);
+    });
+    sfc.appendChild(slot);
+  });
+  sfc.style.justifyContent='space-around';
+  grid.appendChild(sfc);
+
+  // Final col
+  const fc=document.createElement('div'); fc.className='bracket-col'; fc.style.justifyContent='center';
+  const fslot=makeSlot(se.F,'gf','First to 11, win by 2');
+  fslot.querySelectorAll('.brow:not(.tbd)').forEach(r=>{
+    r.onclick=()=>openSEModal(se.F.id,se.F.tA,se.F.tB);
+  });
+  fc.appendChild(fslot);
+  grid.appendChild(fc);
+
+  // Champion col
+  const cc=document.createElement('div'); cc.className='bracket-col'; cc.style.justifyContent='center';
+  if(se.F.w!==null){
+    const t=TEAMS[se.F.w];
+    cc.innerHTML=`<div style="background:var(--card);border:2px solid var(--gold);border-radius:10px;padding:14px 10px;text-align:center;margin:4px 6px;">
+      <div style="font-size:9px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;">🏆 Champion</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);line-height:1.1;">${(t?.p1||'').split(' ')[0]} &amp; ${(t?.p2||'').split(' ')[0]}</div>
+      <div style="font-size:10px;color:var(--muted2);margin-top:5px;">${t?.p1||''} · ${t?.p2||''}</div>
+    </div>`;
+  } else {
+    cc.innerHTML=`<div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 10px;text-align:center;margin:4px 6px;">
+      <div style="font-size:9px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;">🏆 Champion</div>
+      <div style="font-size:11px;color:var(--muted);font-style:italic;">TBD</div>
+    </div>`;
+  }
+  grid.appendChild(cc);
+
+  // SVG lines
+  const svg=makeSvg(grid);
+  requestAnimationFrame(()=>{
+    const ref=grid;
+    const qs=qfc.querySelectorAll('.bslot'), ss=sfc.querySelectorAll('.bslot'), fs=fc.querySelectorAll('.bslot');
+    const c='#e9b94c40';
+    if(qs[0]&&ss[0]) drawConnector(svg,ref,qs[0],ss[0],c);
+    if(qs[1]&&ss[0]) drawConnector(svg,ref,qs[1],ss[0],c);
+    if(qs[2]&&ss[1]) drawConnector(svg,ref,qs[2],ss[1],c);
+    if(qs[3]&&ss[1]) drawConnector(svg,ref,qs[3],ss[1],c);
+    if(ss[0]&&fs[0]) drawConnector(svg,ref,ss[0],fs[0],c);
+    if(ss[1]&&fs[0]) drawConnector(svg,ref,ss[1],fs[0],c);
+  });
+
+  wrap.appendChild(grid);
+  document.getElementById('championWrap').innerHTML='';
+}
+
+function resetBracket(){
+  if(!confirm('Reset bracket?')) return;
+  BRES={}; BSCORES={}; SRES={}; SSCORES={};
+  localStorage.setItem('cd26_bs',JSON.stringify(BSCORES));
+  localStorage.setItem('cd26_se',JSON.stringify(SRES));
+  localStorage.setItem('cd26_ssc',JSON.stringify(SSCORES));
+  save(); renderBracket();
+}
 const DEPS={
   W1:['W5','L1'],W2:['W5','L2'],W3:['W6','L2'],W4:['W6','L1'],
   W5:['W7','L3'],W6:['W7','L4'],W7:['GF1','L6'],
@@ -832,6 +1039,8 @@ function makeSvg(grid){
 }
 
 function renderBracket(){
+  if(BRACKET_MODE==='se'){ renderSE(); _updateBracketToggle(); return; }
+  _updateBracketToggle();
   const de=buildBracket();
 
   // ── WINNERS BRACKET ──
