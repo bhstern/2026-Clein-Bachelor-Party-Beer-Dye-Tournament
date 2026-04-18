@@ -948,7 +948,7 @@ function resetBracket(){
   save(); renderBracket();
 }
 const DEPS={
-  W1:['W5','L1'],W2:['W6','L1'],W3:['W6','L2'],W4:['W5','L2'],
+  W1:['W5','L1'],W2:['W6','L2'],W3:['W5','L1'],W4:['W6','L2'],
   W5:['W7','L3'],W6:['W7','L4'],W7:['GF1','L6'],
   L1:['L3'],L2:['L4'],L3:['L5'],L4:['L5'],
   L5:['L6'],L6:['GF1'],GF1:['GF2'],GF2:[],
@@ -973,8 +973,8 @@ function resM(id,tA,tB){
 function buildBracket(){
   const s=getSeeds();
   const W1=resM('W1',s.A1,s.B4),W2=resM('W2',s.A2,s.B3),W3=resM('W3',s.A3,s.B2),W4=resM('W4',s.A4,s.B1);
-  const W5=resM('W5',W1.w,W4.w),W6=resM('W6',W2.w,W3.w),W7=resM('W7',W5.w,W6.w);
-  const L1=resM('L1',W1.l,W2.l),L2=resM('L2',W3.l,W4.l);
+  const W5=resM('W5',W1.w,W3.w),W6=resM('W6',W2.w,W4.w),W7=resM('W7',W5.w,W6.w);
+  const L1=resM('L1',W1.l,W3.l),L2=resM('L2',W2.l,W4.l);
   const L3=resM('L3',W5.l,L1.w),L4=resM('L4',W6.l,L2.w);
   const L5=resM('L5',L3.w,L4.w),L6=resM('L6',W7.l,L5.w);
   const wbC=W7.w,lbC=L6.w;
@@ -1084,7 +1084,7 @@ function renderBracket(){
   [['Round 1','var(--wb)'],['Semifinals','var(--wb)'],['WB Final','var(--wb)']].forEach(([l,c])=>wbHdr.appendChild(colHead(l,c)));
   wbWrap.appendChild(wbHdr);
   const wbGrid=document.createElement('div'); wbGrid.className='bracket-grid'; wbGrid.style.minWidth='560px';
-  const wc1=makeCol([de.W1,de.W2,de.W3,de.W4],'wb','First to 9, win by 2');
+  const wc1=makeCol([de.W1,de.W3,de.W2,de.W4],'wb','First to 9, win by 2');
   const wc2=makeCol([de.W5,de.W6],'wb','First to 9, win by 2');
   const wc3=makeCol([de.W7],'wb','First to 11, win by 2');
   wc3.style.justifyContent='center';
@@ -1095,7 +1095,9 @@ function renderBracket(){
     const ref=wbGrid;
     const s1=wc1.querySelectorAll('.bslot'), s2=wc2.querySelectorAll('.bslot'), s3=wc3.querySelectorAll('.bslot');
     const c='#59b9e040';
+    // W1(s1[0]) + W4(s1[1]) → Semi 1(s2[0])
     if(s1[0]&&s1[1]&&s2[0]){drawConnector(wbSvg,ref,s1[0],s2[0],c);drawConnector(wbSvg,ref,s1[1],s2[0],c);}
+    // W2(s1[2]) + W3(s1[3]) → Semi 2(s2[1])
     if(s1[2]&&s1[3]&&s2[1]){drawConnector(wbSvg,ref,s1[2],s2[1],c);drawConnector(wbSvg,ref,s1[3],s2[1],c);}
     if(s2[0]&&s2[1]&&s3[0]){drawConnector(wbSvg,ref,s2[0],s3[0],c);drawConnector(wbSvg,ref,s2[1],s3[0],c);}
   });
