@@ -795,8 +795,8 @@ function buildSE(){
   const Q2=seResM('Q2',s.A2,s.B3);
   const Q3=seResM('Q3',s.A3,s.B2);
   const Q4=seResM('Q4',s.A4,s.B1);
-  const S1=seResM('S1',Q1.w,Q2.w);  // 1-seed side: winner of A1/B4 vs winner of A2/B3
-  const S2=seResM('S2',Q3.w,Q4.w);  // 2-seed side
+  const S1=seResM('S1',Q1.w,Q4.w);  // 1A side vs 4A side
+  const S2=seResM('S2',Q2.w,Q3.w);  // 2A side vs 3A side
   const F=seResM('F',S1.w,S2.w);
   return{Q1,Q2,Q3,Q4,S1,S2,F};
 }
@@ -948,7 +948,7 @@ function resetBracket(){
   save(); renderBracket();
 }
 const DEPS={
-  W1:['W5','L1'],W2:['W5','L2'],W3:['W6','L2'],W4:['W6','L1'],
+  W1:['W5','L1'],W2:['W6','L1'],W3:['W6','L2'],W4:['W5','L2'],
   W5:['W7','L3'],W6:['W7','L4'],W7:['GF1','L6'],
   L1:['L3'],L2:['L4'],L3:['L5'],L4:['L5'],
   L5:['L6'],L6:['GF1'],GF1:['GF2'],GF2:[],
@@ -973,8 +973,8 @@ function resM(id,tA,tB){
 function buildBracket(){
   const s=getSeeds();
   const W1=resM('W1',s.A1,s.B4),W2=resM('W2',s.A2,s.B3),W3=resM('W3',s.A3,s.B2),W4=resM('W4',s.A4,s.B1);
-  const W5=resM('W5',W1.w,W2.w),W6=resM('W6',W3.w,W4.w),W7=resM('W7',W5.w,W6.w);
-  const L1=resM('L1',W1.l,W4.l),L2=resM('L2',W2.l,W3.l);
+  const W5=resM('W5',W1.w,W4.w),W6=resM('W6',W2.w,W3.w),W7=resM('W7',W5.w,W6.w);
+  const L1=resM('L1',W1.l,W2.l),L2=resM('L2',W3.l,W4.l);
   const L3=resM('L3',W5.l,L1.w),L4=resM('L4',W6.l,L2.w);
   const L5=resM('L5',L3.w,L4.w),L6=resM('L6',W7.l,L5.w);
   const wbC=W7.w,lbC=L6.w;
@@ -1416,7 +1416,7 @@ function renderAdminBracketScores(){
   const matches=[
     {m:de.W1,lbl:'WB R1 · 1A vs 4B'},{m:de.W2,lbl:'WB R1 · 2A vs 3B'},
     {m:de.W3,lbl:'WB R1 · 3A vs 2B'},{m:de.W4,lbl:'WB R1 · 4A vs 1B'},
-    {m:de.W5,lbl:'WB Semifinal 1'},{m:de.W6,lbl:'WB Semifinal 2'},
+    {m:de.W5,lbl:'WB Semi · W1 vs W4'},{m:de.W6,lbl:'WB Semi · W2 vs W3'},
     {m:de.W7,lbl:'WB Final'},
     {m:de.L1,lbl:'LB Round 1'},{m:de.L2,lbl:'LB Round 1'},
     {m:de.L3,lbl:'LB Round 2'},{m:de.L4,lbl:'LB Round 2'},
