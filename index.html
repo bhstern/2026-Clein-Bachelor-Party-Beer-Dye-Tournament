@@ -597,9 +597,12 @@ function getStandings(g){
   });
   recs.sort((a,b)=>{
     if(b.w!==a.w) return b.w-a.w;
+    // Tiebreaker 1: head-to-head
+    const hh=h2h(g,a.idx,b.idx);
+    if(hh!==0) return hh;
+    // Tiebreaker 2: point differential
     const da=a.pf-a.pa,db=b.pf-b.pa;
-    if(db!==da) return db-da;
-    return h2h(g,a.idx,b.idx);
+    return db-da;
   });
   return recs;
 }
