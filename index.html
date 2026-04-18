@@ -624,35 +624,64 @@ function renderTeams(){
 }
 
 // ══ GROUPS TAB ══════════════════════════════════════════
+// Schedule order: alternating A/B with times
+// RR indices: [0,1]=G1, [0,2]=G2, [0,3]=G3, [1,2]=G4, [1,3]=G5, [2,3]=G6
+// Group A schedule: A1=RR0, A2=RR3, A3=RR1, A4=RR5, A5=RR2, A6=RR4
+// Group B schedule: B1=RR0, B2=RR1, B3=RR3, B4=RR2, B5=RR4, B6=RR5
+// Matchups: A1=Josh&Alec vs Alex&Drew(RR[0,1]), A2=Alex&Drew vs Benj&Jack(RR[1,2]),
+//           A3=Josh&Alec vs Beryl&Alex(RR[0,3]), A4=Benj&Jack vs Beryl&Alex(RR[2,3]),
+//           A5=Josh&Alec vs Benj&Jack(RR[0,2]), A6=Alex&Drew vs Beryl&Alex(RR[1,3])
+// B1=David&Robert vs Ben&Jared(RR[0,1]), B2=David&Robert vs Grant&Jacob(RR[0,2]),
+// B3=Ben&Jared vs Jim&Mark(RR[1,3]), B4=David&Robert vs Jim&Mark(RR[0,3]),
+// B5=Ben&Jared vs Grant&Jacob(RR[1,2]), B6=Grant&Jacob vs Jim&Mark(RR[2,3])
+
+const SCHEDULE = [
+  {time:'11:30', game:'A1', g:0, rrIdx:0},
+  {time:'11:45', game:'B1', g:1, rrIdx:0},
+  {time:'12:00', game:'A2', g:0, rrIdx:3},
+  {time:'12:15', game:'B2', g:1, rrIdx:1},
+  {time:'12:30', game:'A3', g:0, rrIdx:1},
+  {time:'12:45', game:'B3', g:1, rrIdx:4},
+  {time:'1:00',  game:'A4', g:0, rrIdx:5},
+  {time:'1:15',  game:'B4', g:1, rrIdx:2},
+  {time:'1:30',  game:'A5', g:0, rrIdx:2},
+  {time:'1:45',  game:'B5', g:1, rrIdx:3},
+  {time:'2:00',  game:'A6', g:0, rrIdx:4},
+  {time:'2:15',  game:'B6', g:1, rrIdx:5},
+];
+
 function renderGroups(){
-  // Matches
   const gm=document.getElementById('groupMatches');
   gm.innerHTML='';
-  [0,1].forEach(g=>{
+
+  // Combined schedule view
+  const schedHead=document.createElement('div');
+  schedHead.innerHTML=`<div class="group-block-head ga" style="color:var(--gold);margin-bottom:12px;">Schedule <span class="group-block-note">· first to 7, win by 2 · 15 min/game</span></div>`;
+  gm.appendChild(schedHead);
+
+  SCHEDULE.forEach(({time,game,g,rrIdx})=>{
     const gKey=g===0?'gA':'gB';
-    const letter=g===0?'A':'B';
-    const block=document.createElement('div');
-    block.className='group-block';
-    block.innerHTML=`<div class="group-block-head ${g===0?'ga':'gb'}">Group ${letter} <span class="group-block-note">· first to 7, win by 2</span></div>`;
-    RR.forEach((pair,mi)=>{
-      const tA=GROUPS[g][pair[0]],tB=GROUPS[g][pair[1]];
-      const sc=SCORES[gKey][mi];
-      const sa=parseInt(sc?.a),sb=parseInt(sc?.b);
-      const has=sc&&sc.a!==''&&sc.b!==''&&!isNaN(sa)&&!isNaN(sb);
-      const winner=has?(sa>sb?tA:sb>sa?tB:null):null;
-      const row=document.createElement('div');
-      row.className='match-row';
-      row.innerHTML=`<span class="match-num">${mi+1}</span>
-        <div class="match-teams">
-          <div class="mteam ${winner===tA?'win':winner!==null?'lose':''}">${tshort(tA)}</div>
-          <span class="mvs">VS</span>
-          <div class="mteam ${winner===tB?'win':winner!==null?'lose':''}">${tshort(tB)}</div>
-        </div>
-        <div class="mscore">${has?`${sa}–${sb}`:''}</div>`;
-      block.appendChild(row);
-    });
-    gm.appendChild(block);
+    const pair=RR[rrIdx];
+    const tA=GROUPS[g][pair[0]], tB=GROUPS[g][pair[1]];
+    const sc=SCORES[gKey][rrIdx];
+    const sa=parseInt(sc?.a), sb=parseInt(sc?.b);
+    const has=sc&&sc.a!==''&&sc.b!==''&&!isNaN(sa)&&!isNaN(sb);
+    const winner=has?(sa>sb?tA:sb>sa?tB:null):null;
+    const grpCls=g===0?'ga':'gb';
+    const row=document.createElement('div');
+    row.className='match-row';
+    row.innerHTML=`
+      <span class="match-num" style="min-width:34px;font-size:10px;color:var(--muted2);">${time}</span>
+      <span class="match-num" style="min-width:22px;font-size:9px;color:var(--${g===0?'wb':'lb'});">${game}</span>
+      <div class="match-teams">
+        <div class="mteam ${winner===tA?'win':winner!==null?'lose':''}">${tshort(tA)}</div>
+        <span class="mvs">VS</span>
+        <div class="mteam ${winner===tB?'win':winner!==null?'lose':''}">${tshort(tB)}</div>
+      </div>
+      <div class="mscore">${has?`${sa}–${sb}`:''}</div>`;
+    gm.appendChild(row);
   });
+
   // Standings
   const gs=document.getElementById('groupStandings');
   gs.innerHTML='';
