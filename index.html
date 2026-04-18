@@ -425,14 +425,14 @@ input[type=number]{-moz-appearance:textfield;}
 </div>
 
 <div id="tab-groups" class="panel">
-  <div class="sec-head">Group Stage <span class="sec-sub">First to 9, win by 2</span></div>
+  <div class="sec-head">Group Stage <span class="sec-sub">First to 7, win by 2</span></div>
   <div id="groupMatches"></div>
   <div class="sec-head" style="margin-top:8px;">Standings</div>
   <div id="groupStandings"></div>
 </div>
 
 <div id="tab-bracket" class="panel">
-  <div class="bracket-panel-head">Knockout <span class="sec-sub">First to 11, win by 2</span></div>
+  <div class="bracket-panel-head">Knockout <span class="sec-sub">First to 9, win by 2</span></div>
   <div class="bracket-scroll-wrap">
     <div id="wbGrid"></div>
     <div id="lbGrid"></div>
@@ -633,7 +633,7 @@ function renderGroups(){
     const letter=g===0?'A':'B';
     const block=document.createElement('div');
     block.className='group-block';
-    block.innerHTML=`<div class="group-block-head ${g===0?'ga':'gb'}">Group ${letter} <span class="group-block-note">· first to 9</span></div>`;
+    block.innerHTML=`<div class="group-block-head ${g===0?'ga':'gb'}">Group ${letter} <span class="group-block-note">· first to 7, win by 2</span></div>`;
     RR.forEach((pair,mi)=>{
       const tA=GROUPS[g][pair[0]],tB=GROUPS[g][pair[1]];
       const sc=SCORES[gKey][mi];
@@ -732,7 +732,7 @@ function prevScore(m, tIdx){
 }
 
 // Make a single match slot element
-function makeSlot(m, cls){
+function makeSlot(m, cls, rule){
   const wrap=document.createElement('div');
   wrap.className='bslot';
   const inner=document.createElement('div');
@@ -746,7 +746,7 @@ function makeSlot(m, cls){
       row.className=`brow${isW?' win':''}${isL?' lose':''}`;
       const sc=prevScore(m,tIdx);
       row.innerHTML=`<span class="brow-seed">${seedLbl(tIdx)}</span><span class="brow-name">${tshort(tIdx)}</span>${sc?`<span class="brow-score">${sc}</span>`:''}`;
-      row.onclick=()=>openScoreModal(m.id,m.tA,m.tB);
+      row.onclick=()=>openScoreModal(m.id,m.tA,m.tB,rule);
     }
     inner.appendChild(row);
   });
@@ -755,10 +755,10 @@ function makeSlot(m, cls){
 }
 
 // Make a column of match slots
-function makeCol(matches, cls){
+function makeCol(matches, cls, rule){
   const col=document.createElement('div');
   col.className='bracket-col';
-  matches.forEach(m=>col.appendChild(makeSlot(m,cls)));
+  matches.forEach(m=>col.appendChild(makeSlot(m,cls,rule)));
   return col;
 }
 
@@ -811,9 +811,9 @@ function renderBracket(){
   [['Round 1','var(--wb)'],['Semifinals','var(--wb)'],['WB Final','var(--wb)']].forEach(([l,c])=>wbHdr.appendChild(colHead(l,c)));
   wbWrap.appendChild(wbHdr);
   const wbGrid=document.createElement('div'); wbGrid.className='bracket-grid'; wbGrid.style.minWidth='560px';
-  const wc1=makeCol([de.W1,de.W2,de.W3,de.W4],'wb');
-  const wc2=makeCol([de.W5,de.W6],'wb');
-  const wc3=makeCol([de.W7],'wb');
+  const wc1=makeCol([de.W1,de.W2,de.W3,de.W4],'wb','First to 9, win by 2');
+  const wc2=makeCol([de.W5,de.W6],'wb','First to 9, win by 2');
+  const wc3=makeCol([de.W7],'wb','First to 11, win by 2');
   wc3.style.justifyContent='center';
   wbGrid.appendChild(wc1); wbGrid.appendChild(wc2); wbGrid.appendChild(wc3);
   wbWrap.appendChild(wbGrid);
@@ -834,10 +834,10 @@ function renderBracket(){
   [['LB Round 1','var(--lb)'],['LB Round 2','var(--lb)'],['LB Semi','var(--lb)'],['LB Final','var(--lb)']].forEach(([l,c])=>lbHdr.appendChild(colHead(l,c)));
   lbWrap.appendChild(lbHdr);
   const lbGrid=document.createElement('div'); lbGrid.className='bracket-grid'; lbGrid.style.minWidth='560px';
-  const lc1=makeCol([de.L1,de.L2],'lb');
-  const lc2=makeCol([de.L3,de.L4],'lb');
-  const lc3=makeCol([de.L5],'lb'); lc3.style.justifyContent='center';
-  const lc4=makeCol([de.L6],'lb'); lc4.style.justifyContent='center';
+  const lc1=makeCol([de.L1,de.L2],'lb','First to 9, win by 2');
+  const lc2=makeCol([de.L3,de.L4],'lb','First to 9, win by 2');
+  const lc3=makeCol([de.L5],'lb','First to 9, win by 2'); lc3.style.justifyContent='center';
+  const lc4=makeCol([de.L6],'lb','First to 11, win by 2'); lc4.style.justifyContent='center';
   lbGrid.appendChild(lc1); lbGrid.appendChild(lc2); lbGrid.appendChild(lc3); lbGrid.appendChild(lc4);
   lbWrap.appendChild(lbGrid);
   const lbSvg=makeSvg(lbGrid);
@@ -857,7 +857,7 @@ function renderBracket(){
   const gfWrap=document.getElementById('gfGrid'); gfWrap.innerHTML='';
   gfWrap.appendChild(sectionDiv('Grand Final','var(--gold)'));
   const gfNote=document.createElement('div'); gfNote.className='gf-note-bar';
-  gfNote.textContent='WB champion needs 1 win · LB champion needs 2 wins';
+  gfNote.textContent='WB champion needs 1 win · LB champion needs 2 wins · First to 11, win by 2';
   gfWrap.appendChild(gfNote);
   const gfHdr=document.createElement('div'); gfHdr.className='bracket-col-headers';
   gfHdr.appendChild(colHead('Game 1','var(--gold)'));
@@ -865,9 +865,9 @@ function renderBracket(){
   gfHdr.appendChild(colHead('Champion','var(--gold)'));
   gfWrap.appendChild(gfHdr);
   const gfGrid=document.createElement('div'); gfGrid.className='bracket-grid'; gfGrid.style.minWidth='280px';
-  const gc1=makeCol([de.GF1],'gf'); gc1.style.justifyContent='center';
+  const gc1=makeCol([de.GF1],'gf','First to 11, win by 2'); gc1.style.justifyContent='center';
   gfGrid.appendChild(gc1);
-  if(de.gf2){ const gc2=makeCol([de.GF2],'gf'); gc2.style.justifyContent='center'; gfGrid.appendChild(gc2); }
+  if(de.gf2){ const gc2=makeCol([de.GF2],'gf','First to 11, win by 2'); gc2.style.justifyContent='center'; gfGrid.appendChild(gc2); }
   // Champion box
   const champCol=document.createElement('div'); champCol.className='bracket-col'; champCol.style.justifyContent='center';
   if(de.champ!==null){
@@ -898,15 +898,16 @@ function resetBracket(){
 // ── SCORE MODAL ──
 let _modalId=null, _modalTA=null, _modalTB=null;
 
-function openScoreModal(id, tA, tB){
+function openScoreModal(id, tA, tB, rule){
   if(tA===null||tB===null||tA===undefined||tB===undefined) return;
   _modalId=id; _modalTA=tA; _modalTB=tB;
   const sc=BSCORES[id]||{a:'',b:''};
+  const ruleStr = rule || 'First to 9, win by 2';
   const el=document.getElementById('scoreModal');
   el.innerHTML=`<div class="score-modal-overlay" onclick="closeModal(event)">
     <div class="score-modal">
       <div class="score-modal-title">Enter Score</div>
-      <div class="score-modal-sub">First to 11, win by 2 · then tap the winner</div>
+      <div class="score-modal-sub">${ruleStr} · then tap the winner</div>
       <div class="score-modal-row">
         <div class="score-modal-team">
           <div class="score-modal-nm">${tshort(tA)}</div>
